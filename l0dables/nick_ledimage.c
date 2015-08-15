@@ -143,8 +143,6 @@ void ram(void) {
         lcd_deselect();
         ws2812_sendarray(off, sizeof(off));
         return;
-      case BTN_NONE:
-        break;
     };
   };
     
