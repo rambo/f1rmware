@@ -46,8 +46,8 @@ void ram(void)
     char *nick=GLOBAL(nickname);
 
 
-	uint8_t pattern[] =
-	{
+    static uint8_t initial_pattern[] =
+    {
         0, 0, 0,
         0, 0, 0,
         
@@ -61,12 +61,12 @@ void ram(void)
 
 
     int dimmingfactor = 10;
-	uint8_t rgbled_buffer[8][3];
-	uint8_t* rgbled_ant_end = &rgbled_buffer[7];
-	uint8_t* rgbled_left = &rgbled_buffer[0];
-	uint8_t* rgbled_right = &rgbled_buffer[1];
+    uint8_t rgbled_buffer[8*3];
+    uint8_t* rgbled_ant_end = &rgbled_buffer[7*3];
+    uint8_t* rgbled_left = &rgbled_buffer[0*3];
+    uint8_t* rgbled_right = &rgbled_buffer[1*3];
 
-	uint8_t dimmer[8][3];
+    uint8_t dimmer[8*3];
 
 
     lcdClear();
@@ -83,10 +83,11 @@ void ram(void)
     lcdClear();
     char stepmode=0;
 
-	SETUPgout(RGB_LED);
-    dim(dimmer, pattern, sizeof(dimmer), dimmingfactor);
+    memcpy(rgbled_buffer, initial_pattern, sizeof(initial_pattern));
+    SETUPgout(RGB_LED);
+    delayms_queue_plus(5,0);
+    dim(dimmer, rgbled_buffer, sizeof(dimmer), dimmingfactor);
     ws2812_sendarray(dimmer, sizeof(dimmer));
-
 
     while (1)
     {
@@ -136,7 +137,7 @@ void ram(void)
                 {
                     dimmingfactor = 1;
                 }
-                dim(dimmer, pattern, sizeof(dimmer), dimmingfactor);
+                dim(dimmer, rgbled_buffer, sizeof(dimmer), dimmingfactor);
                 ws2812_sendarray(dimmer, sizeof(dimmer));
                 break;
             case BTN_LEFT:
@@ -150,7 +151,7 @@ void ram(void)
                 {
                     dimmingfactor = 255;
                 }
-                dim(dimmer, pattern, sizeof(dimmer), dimmingfactor);
+                dim(dimmer, rgbled_buffer, sizeof(dimmer), dimmingfactor);
                 ws2812_sendarray(dimmer, sizeof(dimmer));
                 break;
         }
