@@ -19,9 +19,9 @@
 #include "usetable.h"
 
 void dim(uint8_t *target, uint8_t *colours, size_t size, int dimmingfactor){
-	for(int i= 0; i < size; i++){
-		target[i] = colours[i]/dimmingfactor ;
-	};
+  for(int i= 0; i < size; i++){
+    target[i] = colours[i]/dimmingfactor ;
+  };
 
 };
 
@@ -31,7 +31,7 @@ void ram(void) {
   int dy=0;
     static uint32_t ctr=0;
   ctr++;
-	uint8_t pattern[] = {
+  uint8_t pattern[] = {
                      0, 0, 0,
                      0, 0, 0,
 
@@ -66,30 +66,30 @@ void ram(void) {
                       0, 255, 0
                       };
 
-	uint8_t blue[] = {
-			0,0,255,
-			0,0,255,
+  uint8_t blue[] = {
+      0,0,255,
+      0,0,255,
 
-			0,0,255,
-			0,0,255,
-			0,0,255,
-			0,0,255,
-			0,0,255,
-			0,0,255
-			};
-	uint8_t off[] = {
-			0,0,0,
-			0,0,0,
+      0,0,255,
+      0,0,255,
+      0,0,255,
+      0,0,255,
+      0,0,255,
+      0,0,255
+      };
+  uint8_t off[] = {
+      0,0,0,
+      0,0,0,
 
-			0,0,0,
-			0,0,0,
-			0,0,0,
-			0,0,0,
-			0,0,0,
-			0,0,0
-			};
-	uint8_t  dimmer[] = {
-	                0,0,0,
+      0,0,0,
+      0,0,0,
+      0,0,0,
+      0,0,0,
+      0,0,0,
+      0,0,0
+      };
+  uint8_t  dimmer[] = {
+                  0,0,0,
                         0,0,0,
 
                         0,0,0,
@@ -98,9 +98,9 @@ void ram(void) {
                         0,0,0,
                         0,0,0,
                         0,0,0
-			};
+      };
     getInputWaitRelease();
-	SETUPgout(RGB_LED);
+  SETUPgout(RGB_LED);
 
   setExtFont(GLOBAL(nickfont));
   dx=DoString(0,0,GLOBAL(nickname));
@@ -116,30 +116,31 @@ void ram(void) {
     
     
     while(1){
-	
-		switch(getInput()){
-			case BTN_UP:
-		dim(dimmer, pattern, sizeof(dimmer), dimmingfactor);
-                ws2812_sendarray(dimmer, sizeof(dimmer));
-				break;
-			case BTN_DOWN:
-		dim(dimmer, green, sizeof(dimmer), dimmingfactor);
-                ws2812_sendarray(dimmer, sizeof(dimmer));
-				break;
-			case BTN_LEFT:
-		dim(dimmer, red, sizeof(dimmer), dimmingfactor);
-                ws2812_sendarray(dimmer, sizeof(dimmer));
-				break;
-			case BTN_RIGHT:
-		dim(dimmer, blue, sizeof(dimmer), dimmingfactor);
-                ws2812_sendarray(dimmer, sizeof(dimmer));
-				break;
-			case BTN_ENTER:
-		ws2812_sendarray(off, sizeof(off));
-				return;
-				break;
-		};
-	};
+  
+    switch(getInput()){
+      case BTN_UP:
+        dim(dimmer, pattern, sizeof(dimmer), dimmingfactor);
+            ws2812_sendarray(dimmer, sizeof(dimmer));
+        break;
+      case BTN_DOWN:
+        dim(dimmer, green, sizeof(dimmer), dimmingfactor);
+            ws2812_sendarray(dimmer, sizeof(dimmer));
+        break;
+      case BTN_LEFT:
+        dim(dimmer, red, sizeof(dimmer), dimmingfactor);
+            ws2812_sendarray(dimmer, sizeof(dimmer));
+        break;
+      case BTN_RIGHT:
+        dim(dimmer, blue, sizeof(dimmer), dimmingfactor);
+            ws2812_sendarray(dimmer, sizeof(dimmer));
+        break;
+      case BTN_ENTER:
+        ws2812_sendarray(off, sizeof(off));
+        lcd_deselect();
+        return;
+        break;
+    };
+  };
     
   return;
   
