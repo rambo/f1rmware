@@ -1,10 +1,18 @@
+#include <stdint.h>
+#include <string.h>
 
-#include <r0ketlib/config.h>
 #include <r0ketlib/display.h>
 #include <r0ketlib/fonts.h>
 #include <r0ketlib/render.h>
-#include <r0ketlib/print.h>
+//#include <r0ketlib/fonts/smallfonts.h>
 #include <r0ketlib/keyin.h>
+#include <r0ketlib/itoa.h>
+#include <r0ketlib/config.h>
+#include <r0ketlib/print.h>
+#include <rad1olib/pins.h>
+#include <rad1olib/light_ws2812_cortex.h>
+#include <rad1olib/setup.h>
+#include <r0ketlib/display.h>
 
 #include "usetable.h"
 
@@ -14,7 +22,16 @@ typedef uint8_t uchar;
 
 static unsigned long iter=0;
 
-void ram(void) {
+void dim(uint8_t *target, uint8_t *colours, size_t size, int dimmingfactor){
+    for(int i= 0; i < size; i++){
+        target[i] = colours[i]/dimmingfactor ;
+    };
+
+};
+
+
+void ram(void)
+{
     getInputWaitRelease();
 
     char template[256];
@@ -43,7 +60,8 @@ void ram(void) {
     lcdClear();
     char stepmode=0;
 
-    while (1) {
+    while (1)
+    {
         ++iter;
         lcdDisplay();
         lcdClear();
@@ -57,39 +75,41 @@ void ram(void) {
         DoString(nickx,nicky,nick);
         DoString(nickx+nickwidth+nickoff,nicky,nick);
         if(nickwidth<RESX) DoString(nickx+2*(nickwidth+nickoff),nicky,nick);
-	char key=stepmode?getInputWait():getInputRaw();
-	stepmode=0;
-	switch(key) {
-        // Buttons: Right change speed, Up hold scrolling
-	case BTN_ENTER:
-	  return;
-	case BTN_RIGHT:
-	  getInputWaitRelease();
-          speedmode=(speedmode+1)%6;
-          delaytime=15;
-          // speeds: normal, slow, sloooow, double, tripple...
-          switch(speedmode) {
-            case 0:
-              movx=1; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
-            case 1:
-              movx=1; LCDSHIFTX_EVERY_N=2; LCDSHIFTY_EVERY_N=2; break;
-            case 2:
-              movx=1; LCDSHIFTX_EVERY_N=3; LCDSHIFTY_EVERY_N=4; break;
-            case 4:
-              movx=2; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
-            case 5:
-              movx=3; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
-          }
-	  break;
-	case BTN_UP:
-	  stepmode=1;
-	  getInputWaitRelease();
-	  break;
-	case BTN_LEFT:
-          return;
-	case BTN_DOWN:
-	  return;
-	}
+        char key=stepmode?getInputWait():getInputRaw();
+        stepmode=0;
+        switch(key)
+        {
+            // Buttons: Right change speed, Up hold scrolling
+            case BTN_ENTER:
+                return;
+            case BTN_RIGHT:
+                getInputWaitRelease();
+                speedmode=(speedmode+1)%6;
+                delaytime=15;
+                // speeds: normal, slow, sloooow, double, tripple...
+                switch(speedmode)
+                {
+                  case 0:
+                    movx=1; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+                  case 1:
+                    movx=1; LCDSHIFTX_EVERY_N=2; LCDSHIFTY_EVERY_N=2; break;
+                  case 2:
+                    movx=1; LCDSHIFTX_EVERY_N=3; LCDSHIFTY_EVERY_N=4; break;
+                  case 4:
+                    movx=2; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+                  case 5:
+                    movx=3; LCDSHIFTX_EVERY_N=1; LCDSHIFTY_EVERY_N=1; break;
+                }
+                break;
+            case BTN_UP:
+                stepmode=1;
+                getInputWaitRelease();
+                break;
+            case BTN_LEFT:
+                return;
+            case BTN_DOWN:
+                return;
+        }
         delayms_queue_plus(delaytime,0);
     }
     return;
