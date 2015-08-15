@@ -46,6 +46,29 @@ void ram(void)
     char *nick=GLOBAL(nickname);
 
 
+	uint8_t pattern[] =
+	{
+        0, 0, 0,
+        0, 0, 0,
+        
+        0,   0,   204,
+        0,   51,   204,
+        0,   102,   204,
+        0,   153,   204,
+        0,   204,   204,
+        0, 255,   204
+    };
+
+
+    int dimmingfactor = 10;
+	uint8_t rgbled_buffer[8][3];
+	uint8_t* rgbled_ant_end = &rgbled_buffer[7];
+	uint8_t* rgbled_left = &rgbled_buffer[0];
+	uint8_t* rgbled_right = &rgbled_buffer[1];
+
+	uint8_t dimmer[8][3];
+
+
     lcdClear();
     setExtFont(GLOBAL(nickfont));
     nicky=1;
@@ -59,6 +82,11 @@ void ram(void)
 
     lcdClear();
     char stepmode=0;
+
+	SETUPgout(RGB_LED);
+    dim(dimmer, pattern, sizeof(dimmer), dimmingfactor);
+    ws2812_sendarray(dimmer, sizeof(dimmer));
+
 
     while (1)
     {
@@ -102,13 +130,29 @@ void ram(void)
                 }
                 break;
             case BTN_UP:
+                getInputWaitRelease();
+                dimmingfactor -= 2;
+                if (dimmingfactor < 1)
+                {
+                    dimmingfactor = 1;
+                }
+                dim(dimmer, pattern, sizeof(dimmer), dimmingfactor);
+                ws2812_sendarray(dimmer, sizeof(dimmer));
+                break;
+            case BTN_LEFT:
                 stepmode=1;
                 getInputWaitRelease();
                 break;
-            case BTN_LEFT:
-                return;
             case BTN_DOWN:
-                return;
+                getInputWaitRelease();
+                dimmingfactor += 2;
+                if (dimmingfactor > 255)
+                {
+                    dimmingfactor = 255;
+                }
+                dim(dimmer, pattern, sizeof(dimmer), dimmingfactor);
+                ws2812_sendarray(dimmer, sizeof(dimmer));
+                break;
         }
         delayms_queue_plus(delaytime,0);
     }
