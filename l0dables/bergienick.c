@@ -22,7 +22,6 @@ void dim(uint8_t *target, uint8_t *colours, size_t size, int dimmingfactor){
   for(int i= 0; i < size; i++){
     target[i] = colours[i]/dimmingfactor ;
   };
-
 };
 
 void ram(void) {
@@ -109,15 +108,21 @@ void ram(void) {
         dx=0;
     dy=(RESY-getFontHeight())/2;
 
-  lcdShowImageFile("nick.lcd");
+  if (lcdShowImageFile("nick.lcd") != 0) {
+    lcdClear();
+    lcdNl();
+    lcdPrintln("File nick.lcd");
+    lcdPrintln("not present.");
+    lcdNl();
+    lcdDisplay();
+  }
 
   getInputWait();
   setTextColor(0xFF,0x00);
-    
-    
-    while(1){
-  
-    switch(getInput()){
+
+  while(1){
+    char key = getInputRaw();
+    switch(key){
       case BTN_UP:
         dim(dimmer, pattern, sizeof(dimmer), dimmingfactor);
             ws2812_sendarray(dimmer, sizeof(dimmer));
@@ -135,9 +140,10 @@ void ram(void) {
             ws2812_sendarray(dimmer, sizeof(dimmer));
         break;
       case BTN_ENTER:
-        ws2812_sendarray(off, sizeof(off));
         lcd_deselect();
+        ws2812_sendarray(off, sizeof(off));
         return;
+      case BTN_NONE:
         break;
     };
   };
