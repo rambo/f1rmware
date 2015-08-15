@@ -2,6 +2,7 @@ RPATH?=.
 
 CROSS_COMPILE = arm-none-eabi-
 CC = $(CROSS_COMPILE)gcc
+CXX = $(CROSS_COMPILE)g++
 LD = $(CROSS_COMPILE)ld
 AR = $(CROSS_COMPILE)ar
 AS = $(CROSS_COMPILE)as
@@ -42,6 +43,10 @@ df = $(DEPDIR)/$(*F)
 %.o : %.c $(DEPDIR)
 	$(CC) $(CFLAGS) $(INCLUDE_PATHS) -o $@ $<
 	$(CC) -MM $(CFLAGS) $(INCLUDE_PATHS) $< > $(df).d
+
+%.o : %.cpp $(DEPDIR)
+	$(CXX) $(CFLAGS) $(INCLUDE_PATHS) -o $@ $<
+	$(CXX) -MM $(CFLAGS) $(INCLUDE_PATHS) $< > $(df).d
 
 %.b1n: %.elf
 	$(OBJCOPY) $(OCFLAGS) -O binary $< $@
