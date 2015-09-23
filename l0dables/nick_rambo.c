@@ -22,13 +22,15 @@ typedef uint8_t uchar;
 
 static unsigned long iter=0;
 
+
+// NOTE: LED data orde is G R B
+
 void dim(uint8_t *target, uint8_t *colours, size_t size, int dimmingfactor){
     for(int i= 0; i < size; i++){
         target[i] = colours[i]/dimmingfactor ;
     };
 
 };
-
 
 void ram(void)
 {
@@ -44,21 +46,11 @@ void ram(void)
     static char LCDSHIFTX_EVERY_N=1;
     static char __attribute__((unused)) LCDSHIFTY_EVERY_N=1;
     char *nick=GLOBAL(nickname);
-
-
-    static uint8_t initial_pattern[] =
-    {
-        0, 0, 0,
-        0, 0, 0,
-        
-        0,   0,   204,
-        0,   51,   204,
-        0,   102,   204,
-        0,   153,   204,
-        0,   204,   204,
-        0, 255,   204
-    };
-
+    uint8_t larson_shift_every_n = 5;
+    uint8_t larson_pos = 0;
+    int8_t larson_dir = 1;
+    uint8_t larson_buffer[5*3];
+    uint8_t larson_len = sizeof(larson_buffer)/3;
 
     int dimmingfactor = 10;
     uint8_t rgbled_buffer[8*3];
@@ -83,15 +75,47 @@ void ram(void)
     lcdClear();
     char stepmode=0;
 
-    memcpy(rgbled_buffer, initial_pattern, sizeof(initial_pattern));
     SETUPgout(RGB_LED);
     delayms_queue_plus(5,0);
+    memset(rgbled_buffer, 0x0, sizeof(rgbled_buffer));
     dim(dimmer, rgbled_buffer, sizeof(dimmer), dimmingfactor);
     ws2812_sendarray(dimmer, sizeof(dimmer));
 
     while (1)
     {
         ++iter;
+
+        if(iter % larson_shift_every_n == 0)
+        {
+            // bookkeepinb
+            larson_pos += larson_dir;
+            if (larson_pos < 1)
+            {
+                larson_dir = 1;
+            }
+            if (larson_pos > larson_len-2)
+            {
+                larson_dir = -1;
+            }
+            // clear
+            memset(larson_buffer, 0x0, sizeof(larson_buffer));
+            larson_buffer[larson_pos*3+1] = 0xff; // r
+            larson_buffer[larson_pos*3]   = 0x00; // g
+            larson_buffer[larson_pos*3+2] = 0x00; // b
+            int8_t prev_pos = larson_pos - larson_dir;
+            if (   prev_pos > -1
+                && prev_pos < larson_len)
+            {
+                larson_buffer[prev_pos*3+1] = 0x40; // r
+                larson_buffer[prev_pos*3]   = 0x00; // g
+                larson_buffer[prev_pos*3+2] = 0x00; // b
+            }
+            memcpy(&rgbled_buffer[2*3], larson_buffer, sizeof(larson_buffer));
+            dim(dimmer, rgbled_buffer, sizeof(dimmer), dimmingfactor);
+            ws2812_sendarray(dimmer, sizeof(dimmer));
+        }
+
+
         lcdDisplay();
         lcdClear();
         lcdFill(GLOBAL(nickbg));
