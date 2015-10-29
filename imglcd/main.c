@@ -69,8 +69,7 @@ void doLCD();
 
 int main(void)
 {
-	cpu_clock_init();
-	ssp_clock_init();
+	cpu_clock_init_();
 
 	inputInit();
 

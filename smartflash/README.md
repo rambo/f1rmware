@@ -28,6 +28,7 @@ A few tools and files need to be installed. The f1rmware and all other files nee
 
 #### mtools
  - On arch: `pacman -S mtools`
+ - On Fedora `sudo dnf install mtools`
 
 #### Patched dfu-util
 The patched dfu-util provides support to flash more than one rad1o at a time.
@@ -35,17 +36,50 @@ It can be build from rad1o/dfu-util:
 ``` sh
 git clone https://github.com/rad1o/dfu-util.git
 cd dfu-util
-sh autogen.sh 
+sh autogen.sh
 ./configure  
 make
 # install in-place of existing dfu-util
 sudo cp src/dfu-util `which dfu-util`
 # or install
 sudo make install
+# or adjust $PATH
 ```
 #### udev rule:
  - Copy `90-rad1o-flash.rules` to `/etc/udev/rules.d`
+ - reload rules `$ sudo udevadm control --reload`
 
+
+#### perl Curses module
+
+#####Debian, Ubuntu, etc.
+```
+apt-get install libcurses-perl
+```
+
+#####arch
+
+```
+pacman -S perl-curses
+```
+
+#####Fedora
+```
+sudo dnf install perl-Curses
+```
+
+#####Directly from CPAN
+
+Note: You should probably only do this if there is no package for your distro.
+
+```
+perl -MCPAN -eshell # use default configuration, it's sufficient
+
+# a new console, e.g. ' cpan[1]> ' opens, just type:
+
+install Curses
+exit
+```
 
 ### Building the firmware and gathering all files:
  - Make sure to run "make" in the top level directory first. It will download and build all dependencies of the firmware

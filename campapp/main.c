@@ -28,7 +28,7 @@ void infoscreen(){
     lcdClear();
     lcdPrintln("-------------------");
     lcdPrintln("-RAD1O BADGE SETUP-");
-    lcdPrintln("---- FW REV 02 ----");
+    lcdPrintln("---- FW REV 03 ----");
     lcdNl();
     lcdPrintln("To enter BOOT Menu");
     lcdPrintln("hold Joystick");
@@ -126,7 +126,6 @@ void fancyNickname(void);
 
 int main(void) {
 	cpuClockInit(); /* CPU Clock is now 104 MHz */
-	ssp_clock_init();
 	systickInit();
 
 //	cpu_clock_set(204);
@@ -156,8 +155,6 @@ int main(void) {
 	batteryInit();
 
 	generated_init();
-
-    init_nick();
 
     // XXX: TODO!
     // randomInit();
